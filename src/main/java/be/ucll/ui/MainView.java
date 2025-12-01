@@ -9,6 +9,7 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public class MainView extends VerticalLayout {
     public MainView() {
+
         add(new H1("Dit is de dynamische body van de hoofdpagina"));
     }
 }

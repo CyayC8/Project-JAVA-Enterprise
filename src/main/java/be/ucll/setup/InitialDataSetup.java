@@ -40,12 +40,21 @@ public class InitialDataSetup {
 			});
 
 
+            //USERS
             UserEntity user = new UserEntity();
             user.setUsername("test");
             user.setPassword("test");
             user.setEmail("cedric7310@gmail.com");
             entityManager.persist(user);
 
+            UserEntity user2 = new UserEntity();
+            user2.setUsername("Cedric");
+            user2.setPassword("Cedric");
+            user2.setEmail("cedric7310@gmail.com");
+            entityManager.persist(user2);
+
+
+            //ORDERS
             OrderEntity order = new OrderEntity();
             order.setUser(user);
             order.setTotaalBedrag(1000L);

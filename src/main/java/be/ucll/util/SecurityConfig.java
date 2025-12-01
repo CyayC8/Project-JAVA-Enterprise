@@ -2,6 +2,7 @@ package be.ucll.util;
 
 import be.ucll.ui.LoginView;
 import be.ucll.repositories.UserRepository;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +24,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
         @Bean
         public UserDetailsService userDetailsService() {
-            // Load users from the application database (seeded in InitialDataSetup)
+            // Load users from the application database
             return username -> userRepository.findByUsername(username)
                     .map(u -> User.withUsername(u.getUsername())
                             // Passwords are stored in plain text in InitialDataSetup, so use {noop}
@@ -38,7 +39,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
             super.configure(http);
             setLoginView(http, LoginView.class);
             // After successful authentication, redirect to the main view
-            http.formLogin(form -> form.defaultSuccessUrl("/main", true));
+            http.formLogin(form -> form.defaultSuccessUrl("/search", true));
 
             // Configure proper logout handling: invalidate session, clear authentication,
             // delete JSESSIONID cookie and redirect back to the login view.
@@ -48,7 +49,13 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID")
+//                    .logoutSuccessHandler((request, response, authentication) -> {
+//                        if (VaadinSession.getCurrent() != null) {
+//                            VaadinSession.getCurrent().close();
+//                        }
+//                    })
                     .logoutSuccessUrl("/login")
+
             );
         }
     }

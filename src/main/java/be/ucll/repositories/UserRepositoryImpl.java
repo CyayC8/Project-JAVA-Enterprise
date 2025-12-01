@@ -22,7 +22,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         List<UserEntity> result = entityManager
-                .createQuery("from UserEntity u where u.username = :username", UserEntity.class)
+                .createQuery("from UserEntity u where lower(u.username) = lower(:username)", UserEntity.class)
                 .setParameter("username", username)
                 .getResultList();
         return result.stream().findFirst();
