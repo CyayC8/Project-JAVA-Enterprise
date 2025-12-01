@@ -15,6 +15,7 @@ public class TestRepositoryImpl implements TestRepository {
 
 	@Override
 	public Collection<TestEntity> findAll() {
-		return entityManager.createQuery("from TestEntity").getResultList();
+
+        return entityManager.createQuery("from TestEntity").getResultList();
 	}
 }

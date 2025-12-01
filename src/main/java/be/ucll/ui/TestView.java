@@ -1,5 +1,7 @@
 package be.ucll.ui;
 
+import com.vaadin.flow.component.html.H1;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -11,7 +13,8 @@ import com.vaadin.flow.router.Route;
 
 import be.ucll.services.TestService;
 
-@Route("")
+@Route(value = "test" , layout = MainLayout.class)
+@PermitAll
 public class TestView extends VerticalLayout {
 
 	@Autowired
@@ -19,11 +22,13 @@ public class TestView extends VerticalLayout {
 
 	public TestView() {
 
+        add(new H1("Test Test Test!"));
+
 		Button button = new Button("Ophalen data");
 		button.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
 			@Override
 			public void onComponentEvent(final ClickEvent<Button> buttonClickEvent) {
-				testService.findAll().forEach(testEntity -> add(new Div("TestEntity value from database:" + testEntity.getValue())));
+				testService.findAll().forEach(testEntity -> add(new Div("TestEntity value from database:" + testEntity.getValue() + ":::" + testEntity.getNummer())));
 			}
 		});
 

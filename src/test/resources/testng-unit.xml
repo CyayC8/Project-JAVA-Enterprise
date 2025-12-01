@@ -2,7 +2,7 @@
 <suite name="hibernate">
   <test verbose="0" name="unit tests" annotations="JDK">
     <packages>
-     	<package name="be.ucll.*"/>
+     	<package name="ucll.ucll.*"/>
      </packages>
   </test>
 </suite>

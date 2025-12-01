@@ -26,9 +26,12 @@ import jakarta.persistence.SharedCacheMode;
 
 import be.ucll.util.H2IsolationLevelInitializerBean;
 
+//hier hoef ik niet aan te komen, dit is klaargezet
+
 @Configuration
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
+//om de inmemory db te starten en alle hybernate conf juist te zetten, hier hoef ik niet aan te komen! De db zit in het pakket, wildfly afsluit -> db weg !
 public class JpaConfig {
 
 	private final String[] entityPackages = { "be.ucll" };

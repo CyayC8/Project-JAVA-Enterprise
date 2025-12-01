@@ -14,6 +14,8 @@ public class TestEntity {
 
 	private String value;
 
+    private Integer nummer;
+
 	public Long getId() {
 		return id;
 	}
@@ -29,4 +31,11 @@ public class TestEntity {
 	public void setValue(final String value) {
 		this.value = value;
 	}
+
+    public Integer getNummer() {
+        return nummer;
+    }
+    public void setNummer(Integer nummer) {
+        this.nummer = nummer;
+    }
 }
