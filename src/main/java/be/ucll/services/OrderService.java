@@ -7,4 +7,5 @@ import java.util.Collection;
 public interface OrderService {
 
     Collection<OrderEntity> findAll();
+    Collection<OrderEntity> findAllByUserId(Long userId);
 }

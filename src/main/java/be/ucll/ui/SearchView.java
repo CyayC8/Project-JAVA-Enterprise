@@ -1,8 +1,9 @@
 package be.ucll.ui;
 
 
-import be.ucll.repositories.OrderEntity;
+import be.ucll.repositories.*;
 import be.ucll.services.OrderService;
+import be.ucll.services.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -24,8 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import be.ucll.repositories.OrderEntity;
 
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Route(value = "search", layout = MainLayout.class)
 @PermitAll
@@ -33,6 +33,10 @@ public class SearchView extends VerticalLayout {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     public SearchView() {
 
@@ -109,8 +113,17 @@ public class SearchView extends VerticalLayout {
         row3.add(search, delete);
         add(row2, row1, row3);
 
+        //Logica
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity currentUser = userService.findByUsername(username);
+        Long userId = currentUser != null ? currentUser.getUserId() : null;
+
+
+
 
         //verborgen deel
+
 
         Div output = new Div();
         output.setText("Results will appear here...");
@@ -118,16 +131,16 @@ public class SearchView extends VerticalLayout {
         output.getStyle().set("font-weight", "bold");
 
         search.addClickListener(e -> {
-            Collection<OrderEntity> orders = orderService.findAll();
-            createGridBasic((List<OrderEntity>) orders);
+            Collection<OrderEntity> orders = orderService.findAllByUserId(userId);
+            createGridBasic(new ArrayList<>(orders));
+            output.setText("");
         });
         add(output);
-        output.setVisible(true);
-
-        SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
 
-        //Logica
+//        SecurityContextHolder.getContext().getAuthentication().getCredentials();
+
+
 
         //delete button clears all fields
         delete.addClickListener(e -> {

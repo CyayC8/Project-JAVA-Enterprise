@@ -33,7 +33,8 @@ public class InitialDataSetup {
 	@PostConstruct
 	public void setup() {
 
-        List<ProductEntity> products = new ArrayList<>();
+        List<ProductEntity> soloproduct = new ArrayList<>();
+        List<ProductEntity> duoproducts = new ArrayList<>();
         List<OrderEntity> orders = new ArrayList<>();
 
 		TransactionTemplate transactionTemplate = new TransactionTemplate(platformTransactionManager);
@@ -52,7 +53,6 @@ public class InitialDataSetup {
             user.setUsername("test");
             user.setPassword("test");
             user.setEmail("cedric7310@gmail.com");
-            user.setOrders(orders);
             entityManager.persist(user);
 
             UserEntity user2 = new UserEntity();
@@ -68,16 +68,16 @@ public class InitialDataSetup {
             order.setTotaalBedrag(100L);
             order.setAantalProducten(1);
             order.setAfgeleverd(false);
-            order.setProducts(products);
+            order.setProducts(soloproduct);
 
             orders.add(order);
 
             OrderEntity order2 = new OrderEntity();
-            order2.setUser(user);
-            order2.setTotaalBedrag(200L);
+            order2.setUser(user2);
+            order2.setTotaalBedrag(360L);
             order2.setAantalProducten(2);
             order2.setAfgeleverd(true);
-            order2.setProducts(products);
+            order2.setProducts(duoproducts);
 
             orders.add(order2);
 
@@ -97,10 +97,12 @@ public class InitialDataSetup {
             product2.setDescription("Booster box with 36 sealed PFL cards.");
 
 
-            products.add(product);
-            products.add(product2);
+            soloproduct.add(product);
+            duoproducts.add(product);
+            duoproducts.add(product2);
 
-            order.setProducts(products);
+            order.setProducts(soloproduct);
+            order2.setProducts(duoproducts);
 
             entityManager.persist(order);
             entityManager.persist(order2);

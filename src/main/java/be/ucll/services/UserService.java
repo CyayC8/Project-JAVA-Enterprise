@@ -7,5 +7,6 @@ import java.util.Collection;
 public interface UserService {
 
     Collection<UserEntity> findAll();
+    UserEntity findByUsername(String username);
 
 }

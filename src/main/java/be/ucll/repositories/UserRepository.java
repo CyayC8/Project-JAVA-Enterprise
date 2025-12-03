@@ -10,6 +10,6 @@ public interface UserRepository {
 
     Collection<UserEntity> findAll();
 
-    Optional<UserEntity> findByUsername(String username);
+   Optional<UserEntity> findByUsername(String username);
 
 }
