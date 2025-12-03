@@ -23,7 +23,7 @@ public class SpringMain extends SpringBootServletInitializer implements AppShell
         SpringApplication.run(SpringMain.class, args);
     }
 
-    // ✅ This is the key for WildFly WAR deployment
+    // This is the key for WildFly WAR deployment
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(SpringMain.class);

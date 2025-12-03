@@ -31,6 +31,7 @@ import java.util.*;
 @PermitAll
 public class SearchView extends VerticalLayout {
 
+    //TODO all deze services blijven null en zo loopt boel vast
     @Autowired
     private OrderService orderService;
     @Autowired
