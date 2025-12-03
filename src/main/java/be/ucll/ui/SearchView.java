@@ -1,9 +1,13 @@
 package be.ucll.ui;
 
 
-import com.vaadin.flow.component.Component;
+import be.ucll.repositories.OrderEntity;
+import be.ucll.services.OrderService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -15,10 +19,20 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import be.ucll.repositories.OrderEntity;
+
+
+import java.util.Collection;
+import java.util.List;
 
 @Route(value = "search", layout = MainLayout.class)
 @PermitAll
 public class SearchView extends VerticalLayout {
+
+    @Autowired
+    private OrderService orderService;
 
     public SearchView() {
 
@@ -31,7 +45,7 @@ public class SearchView extends VerticalLayout {
 
         //rijen maken
 
-        HorizontalLayout row1= new HorizontalLayout();
+        HorizontalLayout row1 = new HorizontalLayout();
         row1.setWidthFull();
         row1.setJustifyContentMode(JustifyContentMode.CENTER);
         row1.setSpacing(true);
@@ -89,14 +103,33 @@ public class SearchView extends VerticalLayout {
         delete.setIcon(VaadinIcon.TRASH.create());
         add(delete);
 
-        row1.add(minBedrag,maxBedrag,aantalProducten);
-        row2.add(productNaam,validEmailField,checkbox);
+        row1.add(minBedrag, maxBedrag, aantalProducten);
+        row2.add(productNaam, validEmailField, checkbox);
         row2.setVerticalComponentAlignment(Alignment.CENTER, checkbox);
-        row3.add(search,delete);
-        add(row2,row1,row3);
+        row3.add(search, delete);
+        add(row2, row1, row3);
+
+
+        //verborgen deel
+
+        Div output = new Div();
+        output.setText("Results will appear here...");
+        output.getStyle().set("color", "black");
+        output.getStyle().set("font-weight", "bold");
+
+        search.addClickListener(e -> {
+            Collection<OrderEntity> orders = orderService.findAll();
+            createGridBasic((List<OrderEntity>) orders);
+        });
+        add(output);
+        output.setVisible(true);
+
+        SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
 
         //Logica
+
+        //delete button clears all fields
         delete.addClickListener(e -> {
             minBedrag.clear();
             maxBedrag.clear();
@@ -106,8 +139,35 @@ public class SearchView extends VerticalLayout {
             checkbox.setValue(false);
         });
 
-
-
-
     }
+
+    private void createGridBasic(List<OrderEntity> orders) {
+        Button mail = new Button("E-Mail");
+        mail.setIcon(VaadinIcon.ENVELOPE.create());
+
+        Grid<OrderEntity> grid = new Grid<>(OrderEntity.class, false);
+
+        grid.addColumn(OrderEntity::getOrderId).setHeader("Order ID");
+        grid.addColumn(order -> order.getUser().getUserId()).setHeader("User ID");
+        grid.addColumn(OrderEntity::getAantalProducten).setHeader("#products");
+        grid.addColumn(OrderEntity::getAfgeleverd).setHeader("Afgeleverd");
+        grid.addColumn(OrderEntity::getTotaalBedrag).setHeader("Totaal");
+
+
+        grid.addComponentColumn(order -> {
+            Button detailsButton = new Button("Details");
+            detailsButton.addClickListener(e -> {
+                UI.getCurrent().navigate("/order" + order.getOrderId());
+            });
+            return detailsButton;
+        }).setHeader("Details");
+
+        grid.setItems(orders);
+        add(grid);
+        add(mail);
+    }
+
 }
+
+
+

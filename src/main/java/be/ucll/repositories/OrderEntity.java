@@ -58,6 +58,7 @@ public class OrderEntity {
         return aantalProducten;
     }
 
+
     public void setAantalProducten(Integer aantalProducten) {
         this.aantalProducten = aantalProducten;
     }
@@ -68,6 +69,14 @@ public class OrderEntity {
 
     public void setAfgeleverd(Boolean afgeleverd) {
         this.afgeleverd = afgeleverd;
+    }
+
+    public List<ProductEntity> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ProductEntity> products) {
+        this.products = products;
     }
 
 

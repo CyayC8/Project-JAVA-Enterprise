@@ -24,7 +24,6 @@ public class LoginView extends VerticalLayout {
 
         loginForm = new LoginForm();
         // Delegate authentication to Spring Security (Vaadin security integration)
-
         loginForm.setAction("login");
         add(loginForm);
         

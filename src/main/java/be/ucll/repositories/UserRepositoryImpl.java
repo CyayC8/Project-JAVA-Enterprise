@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
-    @PersistenceContext
+    @PersistenceContext //zegt tegen Spring om hier de entitymanager te injecteren
     private EntityManager entityManager;
 
     @Override

@@ -42,8 +42,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
         logout.addClassName("logout-btn");
         header.add(logout);
         logout.addClickListener(e -> {
-            // Delegate to Spring Security's logout endpoint so that the session
-            // and security context are fully cleared server-side.
+            // Laat Spring Security's logout endpoint dit doen zodat sessie en security context cleared worden server-side
             getUI().ifPresent(ui -> ui.getPage().setLocation("logout"));
         });
 
@@ -60,7 +59,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
         footer.getStyle().set("align-items", "center");
         footer.getStyle().set("padding", "10px");
         footer.getStyle().set("font-size", "0.9em");
-        footer.getStyle().set("color", "#888"); // light gray text
+        footer.getStyle().set("color", "#888");
 
         footer.add(VaadinIcon.COFFEE.create(),
                 new Span("Built by Cedric Swalens © 2025"));
