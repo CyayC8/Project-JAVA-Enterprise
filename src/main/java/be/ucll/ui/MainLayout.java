@@ -1,5 +1,8 @@
 package be.ucll.ui;
 
+import be.ucll.repositories.UserRepository;
+import be.ucll.services.OrderService;
+import be.ucll.services.UserService;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -14,6 +17,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class MainLayout extends VerticalLayout implements RouterLayout, AfterNavigationObserver {

@@ -33,10 +33,6 @@ public class InitialDataSetup {
 	@PostConstruct
 	public void setup() {
 
-        List<ProductEntity> soloproduct = new ArrayList<>();
-        List<ProductEntity> duoproducts = new ArrayList<>();
-        List<OrderEntity> orders = new ArrayList<>();
-
 		TransactionTemplate transactionTemplate = new TransactionTemplate(platformTransactionManager);
 		transactionTemplate.execute(e -> {
 
@@ -62,52 +58,47 @@ public class InitialDataSetup {
             entityManager.persist(user2);
 
 
+            //PRODUCTS
+            ProductEntity product = new ProductEntity();
+            product.setName("SLAB Stufful PSA 10 ");
+            product.setPrice(100L);
+            product.setDescription("Beautiful PSA 10 Stufful card from the MEG01 set.");
+            entityManager.persist(product);
+
+            ProductEntity product2 = new ProductEntity();
+            product2.setName("SEALED Booster Box PFL 36 packs");
+            product2.setPrice(260L);
+            product2.setDescription("Booster box with 36 sealed PFL cards.");
+            entityManager.persist(product2);
+
+
             //ORDERS
             OrderEntity order = new OrderEntity();
             order.setUser(user);
             order.setTotaalBedrag(100L);
             order.setAantalProducten(1);
             order.setAfgeleverd(false);
-            order.setProducts(soloproduct);
+            order.setProducts(List.of(product));
+            entityManager.persist(order);
 
-            orders.add(order);
 
             OrderEntity order2 = new OrderEntity();
             order2.setUser(user2);
             order2.setTotaalBedrag(360L);
             order2.setAantalProducten(2);
             order2.setAfgeleverd(true);
-            order2.setProducts(duoproducts);
-
-            orders.add(order2);
-
-
-
-            //PRODUCTS
-            ProductEntity product = new ProductEntity();
-            product.setOrders(orders);
-            product.setName("SLAB Stufful PSA 10 ");
-            product.setPrice(100L);
-            product.setDescription("Beautiful PSA 10 Stufful card from the MEG01 set.");
-
-            ProductEntity product2 = new ProductEntity();
-            product2.setOrders(orders);
-            product2.setName("SEALED Booster Box PFL 36 packs");
-            product2.setPrice(260L);
-            product2.setDescription("Booster box with 36 sealed PFL cards.");
-
-
-            soloproduct.add(product);
-            duoproducts.add(product);
-            duoproducts.add(product2);
-
-            order.setProducts(soloproduct);
-            order2.setProducts(duoproducts);
-
-            entityManager.persist(order);
+            order2.setProducts(List.of(product2));
             entityManager.persist(order2);
-            entityManager.persist(product);
-            entityManager.persist(product2);
+
+
+            OrderEntity order3 = new OrderEntity();
+            order3.setUser(user);
+            order3.setTotaalBedrag(360L);
+            order3.setAantalProducten(2);
+            order3.setAfgeleverd(true);
+            order3.setProducts(List.of(product, product2));
+            entityManager.persist(order3);
+
 
 			return null;
 		});

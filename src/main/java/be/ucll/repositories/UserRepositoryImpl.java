@@ -23,7 +23,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         List<UserEntity> result = entityManager
-                .createQuery("from UserEntity u where (u.username) = (:username)", UserEntity.class)
+                .createQuery("from UserEntity u where u.username = :username", UserEntity.class)
                 .setParameter("username", username)
                 .getResultList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));

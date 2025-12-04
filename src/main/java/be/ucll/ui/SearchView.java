@@ -4,13 +4,16 @@ package be.ucll.ui;
 import be.ucll.repositories.*;
 import be.ucll.services.OrderService;
 import be.ucll.services.UserService;
+import be.ucll.services.ProductService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,28 +21,28 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
+import jakarta.inject.Inject;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import be.ucll.repositories.OrderEntity;
 
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Route(value = "search", layout = MainLayout.class)
 @PermitAll
 public class SearchView extends VerticalLayout {
 
-    //TODO all deze services blijven null en zo loopt boel vast
-    @Autowired
-    private OrderService orderService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
+    private final Grid<OrderEntity> grid = new Grid<>(OrderEntity.class, false);
+    private final Button mailButton = new Button("E-Mail", VaadinIcon.ENVELOPE.create());
+    private final VerticalLayout resultsContainer = new VerticalLayout();
 
-    public SearchView() {
+    public SearchView(@Autowired OrderService orderService, @Autowired UserService userService, @Autowired ProductService productService) {
 
         setSizeFull();
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -65,8 +68,12 @@ public class SearchView extends VerticalLayout {
         row3.setJustifyContentMode(JustifyContentMode.CENTER);
         row3.setSpacing(true);
 
-        TextField productNaam = new TextField();
+        ComboBox<String> productNaam = new ComboBox<>();
         productNaam.setLabel("Product naam");
+        List<String>allProductNames = productService.findAllProductNames();
+        productNaam.setItems(allProductNames);
+        productNaam.setPlaceholder("Typ om te zoeken...");
+        productNaam.setAllowCustomValue(false);
         productNaam.setClearButtonVisible(true);
         add(productNaam);
 
@@ -81,6 +88,8 @@ public class SearchView extends VerticalLayout {
         Div euroSuffix = new Div();
         euroSuffix.setText("€");
         minBedrag.setSuffixComponent(euroSuffix);
+        minBedrag.setMin(0);
+        minBedrag.setErrorMessage("Minimum bedrag moet groter zijn dan 0");
         add(minBedrag);
 
         NumberField maxBedrag = new NumberField();
@@ -88,12 +97,15 @@ public class SearchView extends VerticalLayout {
         Div euroSuffix2 = new Div();
         euroSuffix2.setText("€");
         maxBedrag.setSuffixComponent(euroSuffix2);
+        maxBedrag.setMin(0);
+        maxBedrag.setErrorMessage("Maximum bedrag moet groter zijn dan 0");
         add(maxBedrag);
 
         IntegerField aantalProducten = new IntegerField();
         aantalProducten.setStepButtonsVisible(true);
         aantalProducten.setMin(0);
         aantalProducten.setLabel("Aantal producten");
+        aantalProducten.setErrorMessage("Voer een geheel getal in");
         add(aantalProducten);
 
         Checkbox checkbox = new Checkbox();
@@ -114,13 +126,19 @@ public class SearchView extends VerticalLayout {
         row3.add(search, delete);
         add(row2, row1, row3);
 
+
+        resultsContainer.setWidthFull();
+        resultsContainer.setSpacing(true);
+        add(resultsContainer);
+
+        setupGrid();
+
+
         //Logica
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity currentUser = userService.findByUsername(username);
         Long userId = currentUser != null ? currentUser.getUserId() : null;
-
-
 
 
         //verborgen deel
@@ -132,18 +150,41 @@ public class SearchView extends VerticalLayout {
         output.getStyle().set("font-weight", "bold");
 
         search.addClickListener(e -> {
-            Collection<OrderEntity> orders = orderService.findAllByUserId(userId);
-            createGridBasic(new ArrayList<>(orders));
-            output.setText("");
+            output.setVisible(false);
+
+            boolean noCriteria = minBedrag.isEmpty()
+                    && maxBedrag.isEmpty()
+                    && aantalProducten.isEmpty()
+                    && (productNaam.getValue() == null || productNaam.getValue().isEmpty())
+                    && (validEmailField.getValue() == null || validEmailField.getValue().isEmpty())
+                    && (checkbox.getValue() == null || !checkbox.getValue());
+
+            if (noCriteria) {
+                output.setText("Geef ten minste één zoekcriteria op");
+                output.setVisible(true);
+                updateResults(Collections.emptyList());
+                return;
+            }
+
+            BigDecimal minAmount = minBedrag.getValue() != null ? BigDecimal.valueOf(minBedrag.getValue()) : null;
+            // als er een invoer is, omzetten naar BigDecimal (geld) en opslaan in minAmount - indien geen invoer = null
+            BigDecimal maxAmount = maxBedrag.getValue() != null ? BigDecimal.valueOf(maxBedrag.getValue()) : null;
+            Integer amountOfProducts = aantalProducten.getValue() != null ? aantalProducten.getValue() : null;
+            String productName = productNaam.getValue() != null ? productNaam.getValue() : null;
+            String email = validEmailField.getValue() != null ? validEmailField.getValue() : null;
+            Boolean delivered = checkbox.getValue() != null ? checkbox.getValue() : null;
+
+
+            List<OrderEntity> filteredOrders = orderService.searchOrders(userId, minAmount, maxAmount, amountOfProducts, productName, email, delivered);
+
+
+            updateResults(filteredOrders);
+
         });
         add(output);
 
 
-//        SecurityContextHolder.getContext().getAuthentication().getCredentials();
-
-
-
-        //delete button clears all fields
+        //delete button cleears all fields en resets the page
         delete.addClickListener(e -> {
             minBedrag.clear();
             maxBedrag.clear();
@@ -151,35 +192,46 @@ public class SearchView extends VerticalLayout {
             productNaam.clear();
             validEmailField.clear();
             checkbox.setValue(false);
+            updateResults(Collections.emptyList());
         });
 
     }
 
-    private void createGridBasic(List<OrderEntity> orders) {
-        Button mail = new Button("E-Mail");
-        mail.setIcon(VaadinIcon.ENVELOPE.create());
-
-        Grid<OrderEntity> grid = new Grid<>(OrderEntity.class, false);
-
+    private void setupGrid() {
         grid.addColumn(OrderEntity::getOrderId).setHeader("Order ID");
         grid.addColumn(order -> order.getUser().getUserId()).setHeader("User ID");
         grid.addColumn(OrderEntity::getAantalProducten).setHeader("#products");
-        grid.addColumn(OrderEntity::getAfgeleverd).setHeader("Afgeleverd");
+        grid.addColumn(new ComponentRenderer<>(order -> {
+            if (order.getAfgeleverd() != null && order.getAfgeleverd()) {
+                return new Icon(VaadinIcon.CHECK);
+            } else {
+                Icon cross = new Icon(VaadinIcon.CLOSE);
+                cross.setColor("red");
+                return cross;
+            }
+        })).setHeader("Afgeleverd");
         grid.addColumn(OrderEntity::getTotaalBedrag).setHeader("Totaal");
 
 
         grid.addComponentColumn(order -> {
             Button detailsButton = new Button("Details");
             detailsButton.addClickListener(e -> {
-                UI.getCurrent().navigate("/order" + order.getOrderId());
+                UI.getCurrent().navigate("/detail/" + order.getOrderId());
             });
             return detailsButton;
         }).setHeader("Details");
-
-        grid.setItems(orders);
-        add(grid);
-        add(mail);
     }
+
+    private void updateResults(List<OrderEntity> orders) {
+        resultsContainer.removeAll();
+        if (orders.isEmpty()) {
+            return;
+        }
+        grid.setItems(orders);
+        resultsContainer.add(grid, mailButton);
+
+    }
+
 
 }
 

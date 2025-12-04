@@ -15,7 +15,7 @@ public class OrderEntity {
     @ManyToOne
     private UserEntity user;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "order_products",
             joinColumns = @JoinColumn(name = "orderId"),

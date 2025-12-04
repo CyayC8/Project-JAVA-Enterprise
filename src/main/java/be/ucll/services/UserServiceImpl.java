@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import be.ucll.repositories.UserEntity;
 import be.ucll.repositories.UserRepository;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
