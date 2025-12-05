@@ -71,6 +71,56 @@ public class InitialDataSetup {
             product2.setDescription("Booster box with 36 sealed PFL cards.");
             entityManager.persist(product2);
 
+            ProductEntity product3 = new ProductEntity();
+            product3.setName("ETB Scarlet & Violet – Paldea Evolved");
+            product3.setPrice(55L);
+            product3.setDescription("Elite Trainer Box from the Paldea Evolved set containing 9 booster packs, sleeves, and accessories.");
+            entityManager.persist(product3);
+
+            ProductEntity product4 = new ProductEntity();
+            product4.setName("SLAB Charizard VMAX PSA 9 – Shiny Fates");
+            product4.setPrice(180L);
+            product4.setDescription("High-quality PSA 9 graded Charizard VMAX from Shiny Fates. Great collector piece.");
+            entityManager.persist(product4);
+
+            ProductEntity product5 = new ProductEntity();
+            product5.setName("SEALED Pikachu V Collection Box");
+            product5.setPrice(35L);
+            product5.setDescription("Brand new sealed Pikachu V Collection Box including 4 booster packs and a promo.");
+            entityManager.persist(product5);
+
+            ProductEntity product6 = new ProductEntity();
+            product6.setName("Pokémon 151 Binder Collection");
+            product6.setPrice(45L);
+            product6.setDescription("Official Pokémon 151 binder + 4 booster packs. Great for collectors.");
+            entityManager.persist(product6);
+
+            ProductEntity product7 = new ProductEntity();
+            product7.setName("SLAB Eevee Promo SWSH Black Star PSA 10");
+            product7.setPrice(70L);
+            product7.setDescription("Gem Mint graded Eevee promo card from SWSH series. Highly collectible.");
+            entityManager.persist(product7);
+
+            ProductEntity product8 = new ProductEntity();
+            product8.setName("SEALED Booster Pack Vintage XY Evolutions");
+            product8.setPrice(28L);
+            product8.setDescription("Authentic sealed XY Evolutions booster pack with a chance of classic reprints.");
+            entityManager.persist(product8);
+
+            ProductEntity product9 = new ProductEntity();
+            product9.setName("Pokémon Scarlet & Violet Booster Bundle (6 packs)");
+            product9.setPrice(28L);
+            product9.setDescription("A bundle of 6 official Scarlet & Violet booster packs.");
+            entityManager.persist(product9);
+
+            ProductEntity product10 = new ProductEntity();
+            product10.setName("Ultra Pro 9-Pocket Premium Binder – Eeveelutions Edition");
+            product10.setPrice(25L);
+            product10.setDescription("High-quality 9-pocket binder with Eeveelutions artwork. Perfect for storing cards safely.");
+            entityManager.persist(product10);
+
+
+
 
             //ORDERS
             OrderEntity order = new OrderEntity();
@@ -99,6 +149,13 @@ public class InitialDataSetup {
             order3.setProducts(List.of(product, product2));
             entityManager.persist(order3);
 
+            OrderEntity order4 = new OrderEntity();
+            order4.setUser(user);
+            order4.setTotaalBedrag(180L);
+            order4.setAantalProducten(5);
+            order4.setAfgeleverd(false);
+            order4.setProducts(List.of(product4, product5, product6, product7, product8));
+            entityManager.persist(order4);
 
 			return null;
 		});

@@ -5,7 +5,10 @@ import be.ucll.repositories.ProductEntity;
 import be.ucll.services.OrderService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -21,27 +24,42 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
 
     private final OrderService orderService;
     private final Grid<ProductEntity> productGrid = new Grid<>(ProductEntity.class, false);
+    private final VerticalLayout wrapper;
 
     public DetailView(OrderService orderService) {
         this.orderService = orderService;
 
-        setPadding(true);
-        setSpacing(true);
 
-        add(new H1("Detailpagina"));
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+
+        wrapper = new VerticalLayout();
+        wrapper.setSizeFull();
+        wrapper.setPadding(false);
+        wrapper.setSpacing(false);
+        wrapper.setAlignItems(Alignment.CENTER);
+
+        add(wrapper);
     }
 
     @Override
     public void setParameter(BeforeEvent event, Long orderId) {
 
-        OrderEntity order = orderService.findById(orderId);
+        wrapper.removeAll();
 
+        OrderEntity order = orderService.findById(orderId);
         if (order == null) {
             add(new H3("Bestelling niet gevonden"));
             return;
         }
 
+        H1 title = new H1("Detailpagina");
+        wrapper.add(title);
+
         showOrderDetails(order);
+        H3 productTitle = new H3("Product Details");
+        wrapper.add(productTitle);
 
         // dynamische productentabel
         productGrid.addColumn(ProductEntity::getProductId).setHeader("ProductId");
@@ -49,27 +67,30 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
         productGrid.addColumn(ProductEntity::getDescription).setHeader("Beschrijving");
         productGrid.addColumn(ProductEntity::getPrice).setHeader("Prijs (€)");
         productGrid.setItems(order.getProducts());
+        productGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        productGrid.setSizeFull();
 
-        add(new H3("Product Details"));
-        add(productGrid);
+        wrapper.add(productGrid);
+        wrapper.setFlexGrow(1, productGrid);
 
         Button back = new Button("Terug", e -> UI.getCurrent().navigate("search"));
-        add(back);
+        wrapper.add(back);
+
     }
 
     private void showOrderDetails(OrderEntity order) {
 
-        add(new H3("Bestelling Detail"));
-
+        FormLayout form = new FormLayout();
         Span orderId = new Span("BestelId: " + order.getOrderId());
         Span klantNr = new Span("Klantnr: " + order.getUser().getUserId());
         Span aantal = new Span("#producten: " + order.getAantalProducten());
         Span delivered = new Span("Afgeleverd: " + (order.getAfgeleverd() ? "Ja" : "Nee"));
         Span total = new Span("Totaal: €" + order.getTotaalBedrag());
+        form.add(orderId, klantNr, aantal, delivered, total);
 
-        VerticalLayout table = new VerticalLayout(orderId, klantNr, aantal, delivered, total);
-        table.setSpacing(false);
-        add(table);
+
+        wrapper.add(new H3("Bestelling Detail"));
+        wrapper.add(form);
     }
 }
 
