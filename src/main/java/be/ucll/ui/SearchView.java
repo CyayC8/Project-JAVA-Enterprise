@@ -2,16 +2,16 @@ package be.ucll.ui;
 
 
 import be.ucll.jms.OrderEmailDTO;
-import be.ucll.repositories.*;
+import be.ucll.repositories.OrderEntity;
+import be.ucll.repositories.UserEntity;
 import be.ucll.services.EmailService;
 import be.ucll.services.OrderService;
-import be.ucll.services.UserService;
 import be.ucll.services.ProductService;
+import be.ucll.services.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -23,19 +23,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
-import jakarta.inject.Inject;
-import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import be.ucll.repositories.OrderEntity;
-
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Route(value = "search", layout = MainLayout.class)
 @PermitAll
@@ -44,8 +40,11 @@ public class SearchView extends VerticalLayout {
     private final Grid<OrderEntity> grid = new Grid<>(OrderEntity.class, false);
     private final Button mailButton = new Button("E-Mail", VaadinIcon.ENVELOPE.create());
     private final VerticalLayout resultsContainer = new VerticalLayout();
+    private final EmailService emailService;
 
-    public SearchView(@Autowired OrderService orderService, @Autowired UserService userService, @Autowired ProductService productService) {
+
+    public SearchView(@Autowired OrderService orderService, @Autowired UserService userService, @Autowired ProductService productService, @Autowired EmailService emailService) {
+        this.emailService = emailService;
 
         setSizeFull();
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -73,7 +72,7 @@ public class SearchView extends VerticalLayout {
 
         ComboBox<String> productNaam = new ComboBox<>();
         productNaam.setLabel("Product naam");
-        List<String>allProductNames = productService.findAllProductNames();
+        List<String> allProductNames = productService.findAllProductNames();
         productNaam.setItems(allProductNames);
         productNaam.setPlaceholder("Typ om te zoeken...");
         productNaam.setAllowCustomValue(false);
@@ -146,23 +145,21 @@ public class SearchView extends VerticalLayout {
         mailButton.addClickListener(e -> {
             //alle relevante variablen er eers tuiothalen dan pas naar de queue zenden of het object meegevem
 
-            List<OrderEntity> currentOrders = grid.getListDataView().getItems().toList();
+            List<OrderEntity> currentOrders = grid.getListDataView().getItems().toList(); //haalt alle items op uit de grid, dus meerder bestellingen
             if (currentOrders.isEmpty()) {
                 Notification.show("Er zijn geen bestellingen om te mailen.", 4000, Notification.Position.TOP_CENTER);
             }
 
             //Variabelen omzetten naar Data Transfer Object voor veilig en proper serializeren
-            List<OrderEmailDTO> ordersToSend = currentOrders.stream().map(order -> new OrderEmailDTO(
-                    order.getOrderId(),
-                    order.getUser().getUsername(),
-                    order.getUser().getEmail(),
-                    order.getAantalProducten(),
-                    order.getTotaalBedrag(),
-                    order.getAfgeleverd()
-            )).toList();
+            List<OrderEmailDTO> ordersToQueue = currentOrders.stream().map(order -> new OrderEmailDTO(order.getOrderId(), order.getUser().getUsername(), order.getUser().getEmail(), order.getAantalProducten(), order.getTotaalBedrag(), order.getAfgeleverd())).toList();
 
-            EmailService.
+            try {
+                emailService.sendEmail(ordersToQueue);
+                Notification.show("Het bericht is succesvol op de queue geplaatst.", 3000, Notification.Position.TOP_CENTER);
+            } catch (Exception ex) {
+                Notification.show("Er is een fout opgetreden bij het verzenden naar de queue: " + ex.getMessage(), 5000, Notification.Position.TOP_CENTER);
 
+            }
         });
 
 
@@ -177,12 +174,7 @@ public class SearchView extends VerticalLayout {
         search.addClickListener(e -> {
             output.setVisible(false);
 
-            boolean noCriteria = minBedrag.isEmpty()
-                    && maxBedrag.isEmpty()
-                    && aantalProducten.isEmpty()
-                    && (productNaam.getValue() == null || productNaam.getValue().isEmpty())
-                    && (validEmailField.getValue() == null || validEmailField.getValue().isEmpty())
-                    && (checkbox.getValue() == null || !checkbox.getValue());
+            boolean noCriteria = minBedrag.isEmpty() && maxBedrag.isEmpty() && aantalProducten.isEmpty() && (productNaam.getValue() == null || productNaam.getValue().isEmpty()) && (validEmailField.getValue() == null || validEmailField.getValue().isEmpty()) && (checkbox.getValue() == null || !checkbox.getValue());
 
             if (noCriteria) {
                 output.setText("Geef ten minste één zoekcriteria op");

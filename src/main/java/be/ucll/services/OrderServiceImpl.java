@@ -13,7 +13,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional//all dbbewerkingen in transaction = alle bewerkingen in 1 transacite indien rollback ALLE wijziginen terugdraaien = db consistent
+
 public class OrderServiceImpl implements OrderService {
 
     @Autowired

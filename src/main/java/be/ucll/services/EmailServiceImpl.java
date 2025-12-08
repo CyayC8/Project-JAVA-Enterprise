@@ -1,18 +1,25 @@
 package be.ucll.services;
 
 
+import be.ucll.jms.MailProducer;
 import be.ucll.jms.OrderEmailDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-@Transactional //why?
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl implements EmailService {
+
+    private final MailProducer mailProducer;
+
+    public EmailServiceImpl(MailProducer mailProducer) {
+        this.mailProducer = mailProducer;
+    }
 
     @Override
-    public void sendEmail(OrderEmailDTO orderEmailDTO) {
+    public void sendEmail(List<OrderEmailDTO> ordersToQueue) {
 
-
-
+        mailProducer.sendMessage(ordersToQueue);
     }
 }
