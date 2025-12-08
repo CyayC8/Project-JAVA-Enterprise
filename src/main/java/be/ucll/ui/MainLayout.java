@@ -66,8 +66,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
         footer.getStyle().set("font-size", "0.9em");
         footer.getStyle().set("color", "#888");
 
-        footer.add(VaadinIcon.COFFEE.create(),
-                new Span("Built by Cedric Swalens © 2025"));
+        footer.add(VaadinIcon.COFFEE.create(), new Span("Built by Cedric Swalens © 2025"));
 
 
         setSizeFull();
