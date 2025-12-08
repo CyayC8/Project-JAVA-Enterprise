@@ -1,7 +1,9 @@
 package be.ucll.ui;
 
 
+import be.ucll.jms.OrderEmailDTO;
 import be.ucll.repositories.*;
+import be.ucll.services.EmailService;
 import be.ucll.services.OrderService;
 import be.ucll.services.UserService;
 import be.ucll.services.ProductService;
@@ -15,6 +17,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -139,6 +142,28 @@ public class SearchView extends VerticalLayout {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity currentUser = userService.findByUsername(username);
         Long userId = currentUser != null ? currentUser.getUserId() : null;
+
+        mailButton.addClickListener(e -> {
+            //alle relevante variablen er eers tuiothalen dan pas naar de queue zenden of het object meegevem
+
+            List<OrderEntity> currentOrders = grid.getListDataView().getItems().toList();
+            if (currentOrders.isEmpty()) {
+                Notification.show("Er zijn geen bestellingen om te mailen.", 4000, Notification.Position.TOP_CENTER);
+            }
+
+            //Variabelen omzetten naar Data Transfer Object voor veilig en proper serializeren
+            List<OrderEmailDTO> ordersToSend = currentOrders.stream().map(order -> new OrderEmailDTO(
+                    order.getOrderId(),
+                    order.getUser().getUsername(),
+                    order.getUser().getEmail(),
+                    order.getAantalProducten(),
+                    order.getTotaalBedrag(),
+                    order.getAfgeleverd()
+            )).toList();
+
+            EmailService.
+
+        });
 
 
         //verborgen deel
