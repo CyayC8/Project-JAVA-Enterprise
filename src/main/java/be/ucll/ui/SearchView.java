@@ -12,6 +12,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -35,23 +37,34 @@ import java.util.List;
 
 @Route(value = "search", layout = MainLayout.class)
 @PermitAll
+@CssImport("./styles/styles.css")
 public class SearchView extends VerticalLayout {
 
     private final Grid<OrderEntity> grid = new Grid<>(OrderEntity.class, false);
     private final Button mailButton = new Button("E-Mail", VaadinIcon.ENVELOPE.create());
     private final VerticalLayout resultsContainer = new VerticalLayout();
     private final EmailService emailService;
+    private final VerticalLayout wrapper = new VerticalLayout();
+
 
 
     public SearchView(@Autowired OrderService orderService, @Autowired UserService userService, @Autowired ProductService productService, @Autowired EmailService emailService) {
         this.emailService = emailService;
 
         setSizeFull();
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        setPadding(true);
-        setSpacing(true);
+        setPadding(false);
+        setSpacing(false);
 
-        add(new H1("Search View"));
+
+        wrapper.setSizeFull();
+        wrapper.setPadding(true);
+        wrapper.setSpacing(true);
+        wrapper.setAlignItems(Alignment.CENTER);
+        wrapper.setJustifyContentMode(JustifyContentMode.START);
+        add(wrapper);
+
+        H1 title = new H1("Search Orders");
+        wrapper.add(title);
 
         //rijen maken
 
@@ -77,7 +90,6 @@ public class SearchView extends VerticalLayout {
         productNaam.setPlaceholder("Typ om te zoeken...");
         productNaam.setAllowCustomValue(false);
         productNaam.setClearButtonVisible(true);
-        add(productNaam);
 
         EmailField validEmailField = new EmailField();
         validEmailField.setLabel("Email address");
@@ -92,7 +104,6 @@ public class SearchView extends VerticalLayout {
         minBedrag.setSuffixComponent(euroSuffix);
         minBedrag.setMin(0);
         minBedrag.setErrorMessage("Minimum bedrag moet groter zijn dan 0");
-        add(minBedrag);
 
         NumberField maxBedrag = new NumberField();
         maxBedrag.setLabel("Maximum bedrag");
@@ -101,37 +112,33 @@ public class SearchView extends VerticalLayout {
         maxBedrag.setSuffixComponent(euroSuffix2);
         maxBedrag.setMin(0);
         maxBedrag.setErrorMessage("Maximum bedrag moet groter zijn dan 0");
-        add(maxBedrag);
 
         IntegerField aantalProducten = new IntegerField();
         aantalProducten.setStepButtonsVisible(true);
         aantalProducten.setMin(0);
         aantalProducten.setLabel("Aantal producten");
         aantalProducten.setErrorMessage("Voer een geheel getal in");
-        add(aantalProducten);
 
         Checkbox checkbox = new Checkbox();
         checkbox.setLabel("Afgeleverd");
-        add(checkbox);
 
         Button search = new Button("Search");
         search.setIcon(VaadinIcon.SEARCH.create());
-        add(search);
 
         Button delete = new Button("Delete");
         delete.setIcon(VaadinIcon.TRASH.create());
-        add(delete);
 
         row1.add(minBedrag, maxBedrag, aantalProducten);
         row2.add(productNaam, validEmailField, checkbox);
         row2.setVerticalComponentAlignment(Alignment.CENTER, checkbox);
         row3.add(search, delete);
-        add(row2, row1, row3);
+        wrapper.add(row2, row1, row3);
 
 
         resultsContainer.setWidthFull();
-        resultsContainer.setSpacing(true);
-        add(resultsContainer);
+        resultsContainer.setHeightFull();
+        wrapper.expand(resultsContainer);
+        wrapper.add(resultsContainer);
 
         setupGrid();
 
@@ -164,12 +171,13 @@ public class SearchView extends VerticalLayout {
 
 
         //verborgen deel
-
+//todo dee seacrhview verwijdert de header wanneer er gezocht wordt
 
         Div output = new Div();
         output.setText("Results will appear here...");
         output.getStyle().set("color", "black");
         output.getStyle().set("font-weight", "bold");
+        wrapper.add(output);
 
         search.addClickListener(e -> {
             output.setVisible(false);
@@ -198,8 +206,6 @@ public class SearchView extends VerticalLayout {
             updateResults(filteredOrders);
 
         });
-        add(output);
-
 
         //delete button cleears all fields en resets the page
         delete.addClickListener(e -> {
@@ -241,12 +247,10 @@ public class SearchView extends VerticalLayout {
 
     private void updateResults(List<OrderEntity> orders) {
         resultsContainer.removeAll();
-        if (orders.isEmpty()) {
-            return;
+        if (!orders.isEmpty()) {
+            grid.setItems(orders);
+            resultsContainer.add(grid, mailButton);
         }
-        grid.setItems(orders);
-        resultsContainer.add(grid, mailButton);
-
     }
 
 

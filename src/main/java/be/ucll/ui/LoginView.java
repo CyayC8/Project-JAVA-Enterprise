@@ -1,5 +1,6 @@
 package be.ucll.ui;
 
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
@@ -19,9 +20,13 @@ public class LoginView extends VerticalLayout {
 
     public LoginView() {
 
+        addClassName("login");
+
         setSizeFull();
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+
+
 
         loginForm = new LoginForm();
         // Delegate authentication to Spring Security (Vaadin security integration)

@@ -78,6 +78,9 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
 
     }
 
+    //todo er moet spaties toegevoegd worden margin en padding want het wit allemaal te dicht opeen
+//todo Bescsrhijving zou volledig getoont moeten kunnen worden
+
     private void showOrderDetails(OrderEntity order) {
 
         FormLayout form = new FormLayout();

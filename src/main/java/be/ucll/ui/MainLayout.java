@@ -19,6 +19,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
     public MainLayout() {
         H1 header = new H1();
         header.getStyle().set("width", "100%");
+        header.getStyle().set("height", "10%");
         header.getStyle().set("background-color", "#FFCB05");
         header.getStyle().set("color", "#3B4CCA");
         header.getStyle().set("font-weight", "bold");
@@ -66,7 +67,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
         footer.getStyle().set("font-size", "0.9em");
         footer.getStyle().set("color", "#888");
 
-        footer.add(VaadinIcon.COFFEE.create(), new Span("Built by Cedric Swalens © 2025"));
+        footer.add(VaadinIcon.LIGHTBULB.create(), new Span("Built by Cedric Swalens © 2025"));
 
 
         setSizeFull();

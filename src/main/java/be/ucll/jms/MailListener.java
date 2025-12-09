@@ -16,6 +16,7 @@ public class MailListener {
 
     @JmsListener(destination = "mailQueue")
     //register this message as a listener for the destination "mailQueue"
+    //Srping component =JmsListener een JAVA EE component zou MDB(message driven bean) zijn
 
     public void receiveMessageAndSendEmail(List<OrderEmailDTO> ordersFromQueue) {
 
@@ -38,7 +39,7 @@ public class MailListener {
         String to = ordersFromQueue.getFirst().getCustomerEmail();
         String subject = "Bestellingen overzicht";
         String html = body.toString();
-
+//MimeMessage afkomstig uit Jakarta mail = Java MAIL API
         MimeMessagePreparator message = mimeMessage -> {
             mimeMessage.setRecipient(Message.RecipientType.TO, new jakarta.mail.internet.InternetAddress(to));
             mimeMessage.setSubject(subject);
