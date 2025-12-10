@@ -20,6 +20,7 @@ import jakarta.persistence.PersistenceContext;
 
 import be.ucll.repositories.TestEntity;
 
+//TODO GOOGLE APPPASSWORD TOEVOEGEN
 @Component
 //hier worden records in de db gestoken
 public class InitialDataSetup {

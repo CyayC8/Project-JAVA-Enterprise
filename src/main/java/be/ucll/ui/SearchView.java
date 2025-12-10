@@ -13,7 +13,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -47,16 +46,16 @@ public class SearchView extends VerticalLayout {
     private final VerticalLayout wrapper = new VerticalLayout();
 
 
-
     public SearchView(@Autowired OrderService orderService, @Autowired UserService userService, @Autowired ProductService productService, @Autowired EmailService emailService) {
         this.emailService = emailService;
 
-        setSizeFull();
-        setPadding(false);
-        setSpacing(false);
+//        setSizeFull();
+//        setPadding(false);
+//        setSpacing(false);
 
 
-        wrapper.setSizeFull();
+        //wrapper.setSizeFull();
+        wrapper.setWidthFull();
         wrapper.setPadding(true);
         wrapper.setSpacing(true);
         wrapper.setAlignItems(Alignment.CENTER);
@@ -135,9 +134,12 @@ public class SearchView extends VerticalLayout {
         wrapper.add(row2, row1, row3);
 
 
+        //resultsContainer.setWidthFull();
+//        resultsContainer.setHeightFull();
+//        wrapper.expand(resultsContainer);
+        //resultsContainer.setPadding(false);
+        //resultsContainer.setSpacing(false);
         resultsContainer.setWidthFull();
-        resultsContainer.setHeightFull();
-        wrapper.expand(resultsContainer);
         wrapper.add(resultsContainer);
 
         setupGrid();
@@ -171,8 +173,6 @@ public class SearchView extends VerticalLayout {
 
 
         //verborgen deel
-//todo dee seacrhview verwijdert de header wanneer er gezocht wordt
-
         Div output = new Div();
         output.setText("Results will appear here...");
         output.getStyle().set("color", "black");

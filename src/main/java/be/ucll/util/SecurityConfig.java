@@ -1,9 +1,9 @@
 package be.ucll.util;
 
-import be.ucll.ui.LoginView;
 import be.ucll.repositories.UserRepository;
-import com.vaadin.flow.server.VaadinSession;
+import be.ucll.ui.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,8 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
@@ -25,17 +23,16 @@ public class SecurityConfig extends VaadinWebSecurity {
     @Bean
     public UserDetailsService userDetailsService() {
         // Load users from the application database
-        return username -> userRepository.findByUsername(username)
-                .map(u -> User.withUsername(u.getUsername())
-                        // {noop} = zegt tegen Spring Security dat er geen encoding is gebruikt dus niet proberen decoden of hashen
-                        .password("{noop}" + u.getPassword())
-                        .roles("USER")
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return username -> userRepository.findByUsername(username).map(u -> User.withUsername(u.getUsername())
+                // {noop} = zegt tegen Spring Security dat er geen encoding is gebruikt dus niet proberen decoden of hashen
+                .password("{noop}" + u.getPassword()).roles("USER").build()).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/images/**", "/icons/**").permitAll()); //allow images and icons
+
         super.configure(http); //laadt de Vaadin security app = bescherming + acces to route security
 
         //LOGIN

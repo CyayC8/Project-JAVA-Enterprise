@@ -8,7 +8,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -28,17 +27,13 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
 
     public DetailView(OrderService orderService) {
         this.orderService = orderService;
-
-
         setSizeFull();
-        setPadding(false);
-        setSpacing(false);
 
         wrapper = new VerticalLayout();
         wrapper.setSizeFull();
-        wrapper.setPadding(false);
-        wrapper.setSpacing(false);
-        wrapper.setAlignItems(Alignment.CENTER);
+        wrapper.setPadding(true);
+        wrapper.setSpacing(true);
+        wrapper.setAlignItems(Alignment.START);
 
         add(wrapper);
     }
@@ -55,17 +50,20 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
         }
 
         H1 title = new H1("Detailpagina");
+        title.getStyle().set("margin-bottom", "30px");
         wrapper.add(title);
 
         showOrderDetails(order);
+
         H3 productTitle = new H3("Product Details");
+        productTitle.getStyle().set("margin-top", "15px");
         wrapper.add(productTitle);
 
         // dynamische productentabel
-        productGrid.addColumn(ProductEntity::getProductId).setHeader("ProductId");
-        productGrid.addColumn(ProductEntity::getName).setHeader("Naam");
-        productGrid.addColumn(ProductEntity::getDescription).setHeader("Beschrijving");
-        productGrid.addColumn(ProductEntity::getPrice).setHeader("Prijs (€)");
+        productGrid.addColumn(ProductEntity::getProductId).setHeader("ProductId").setFlexGrow(0);
+        productGrid.addColumn(ProductEntity::getName).setHeader("Naam").setFlexGrow(1);
+        productGrid.addColumn(ProductEntity::getDescription).setHeader("Beschrijving").setFlexGrow(2);
+        productGrid.addColumn(ProductEntity::getPrice).setHeader("Prijs (€)").setFlexGrow(0);
         productGrid.setItems(order.getProducts());
         productGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         productGrid.setSizeFull();
@@ -78,8 +76,6 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
 
     }
 
-    //todo er moet spaties toegevoegd worden margin en padding want het wit allemaal te dicht opeen
-//todo Bescsrhijving zou volledig getoont moeten kunnen worden
 
     private void showOrderDetails(OrderEntity order) {
 
@@ -89,6 +85,8 @@ public class DetailView extends VerticalLayout implements HasUrlParameter<Long> 
         Span aantal = new Span("#producten: " + order.getAantalProducten());
         Span delivered = new Span("Afgeleverd: " + (order.getAfgeleverd() ? "Ja" : "Nee"));
         Span total = new Span("Totaal: €" + order.getTotaalBedrag());
+        form.getStyle().set("column-gap", "10px");
+        form.getStyle().set("row-gap", "20px");
         form.add(orderId, klantNr, aantal, delivered, total);
 
 

@@ -40,7 +40,6 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
 
         Span title = new Span("Cedric's Pokéshop");
         title.getStyle().set("margin", "0 10px");
-
         header.add(leftLogo, title, rightLogo);
 
         logout = new Button("Logout");
@@ -79,7 +78,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, AfterNav
         setJustifyContentMode(JustifyContentMode.CENTER);
 
         add(header, content, footer);
-        expand(content);
+        //expand(content);
         //expand zorgt ervoor dat header en footer boven en beneden blijven en content al de rest inneemt
     }
 
