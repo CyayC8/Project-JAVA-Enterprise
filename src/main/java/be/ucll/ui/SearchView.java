@@ -192,7 +192,7 @@ public class SearchView extends VerticalLayout {
             }
 
             BigDecimal minAmount = minBedrag.getValue() != null ? BigDecimal.valueOf(minBedrag.getValue()) : null;
-            // als er een invoer is, omzetten naar BigDecimal (geld) en opslaan in minAmount - indien geen invoer = null
+            // als er een invoer is, omzetten naar BigDecimal (speciaal gemnaakt voor bv geld, verliest nooit precisie) en opslaan in minAmount - indien geen invoer = null
             BigDecimal maxAmount = maxBedrag.getValue() != null ? BigDecimal.valueOf(maxBedrag.getValue()) : null;
             Integer amountOfProducts = aantalProducten.getValue() != null ? aantalProducten.getValue() : null;
             String productName = productNaam.getValue() != null ? productNaam.getValue() : null;

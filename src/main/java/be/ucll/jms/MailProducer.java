@@ -19,6 +19,7 @@ public class MailProducer {
         jmsTemplate.convertAndSend("mailQueue", ordersToQueue);
     }
     //deze fucntie zet het hele DTO object op de queue "mailQueue"
+    //mailQueue wordt automatisch aangemaakt door ACtiveMQ als deze nog niet bestaat
 
 
 }
