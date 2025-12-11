@@ -9,6 +9,7 @@ import java.util.List;
 public interface OrderService {
 
     Collection<OrderEntity> findAll();
+
     Collection<OrderEntity> findAllByUserId(Long userId);
 
 

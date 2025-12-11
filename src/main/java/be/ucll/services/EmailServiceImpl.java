@@ -3,7 +3,6 @@ package be.ucll.services;
 
 import be.ucll.jms.MailProducer;
 import be.ucll.jms.OrderEmailDTO;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

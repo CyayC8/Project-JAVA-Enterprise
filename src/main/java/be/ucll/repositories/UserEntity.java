@@ -16,6 +16,8 @@ public class UserEntity {
     private String password;
 
     private String email;
+    @OneToMany(mappedBy = "user")
+    private List<OrderEntity> orders;
 
     public String getEmail() {
         return email;
@@ -24,11 +26,6 @@ public class UserEntity {
     public void setEmail(String email) {
         this.email = email;
     }
-
-
-    @OneToMany(mappedBy = "user")
-    private List<OrderEntity> orders;
-
 
     public Long getUserId() {
         return userId;
@@ -57,6 +54,7 @@ public class UserEntity {
     public List<OrderEntity> getOrders() {
         return orders;
     }
+
     public void setOrders(List<OrderEntity> orders) {
         this.orders = orders;
     }

@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,10 +21,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<UserEntity> findByUsername(String username) {
-        List<UserEntity> result = entityManager
-                .createQuery("from UserEntity u where u.username = :username", UserEntity.class)
-                .setParameter("username", username)
-                .getResultList();
+        List<UserEntity> result = entityManager.createQuery("from UserEntity u where u.username = :username", UserEntity.class).setParameter("username", username).getResultList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 }

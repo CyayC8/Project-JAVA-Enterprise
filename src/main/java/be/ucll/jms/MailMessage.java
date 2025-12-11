@@ -6,8 +6,16 @@ import java.io.Serializable;
 
 public class MailMessage implements Serializable {
 
-    public MailMessage() {
+    private String to;
+    private String subject;
+    private String body;
+    private boolean html;
 
+    public MailMessage(String to, String subject, String body) {
+        this.to = to;
+        this.subject = subject;
+        this.body = body;
+        this.html = true;
     }
 
     public String getTo() {
@@ -34,26 +42,12 @@ public class MailMessage implements Serializable {
         this.body = body;
     }
 
-    private String to;
-    private String subject;
-    private String body;
-
     public boolean isHtml() {
         return html;
     }
 
     public void setHtml(boolean html) {
         this.html = html;
-    }
-
-    private boolean html;
-
-
-    public MailMessage(String to, String subject, String body) {
-        this.to = to;
-        this.subject = subject;
-        this.body = body;
-        this.html = true;
     }
 
 

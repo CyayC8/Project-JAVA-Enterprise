@@ -14,13 +14,13 @@ import com.vaadin.flow.theme.Theme;
 @SpringBootApplication
 public class SpringMain extends SpringBootServletInitializer implements AppShellConfigurator {
 
+    public static void main(String[] args) {
+        SpringApplication.run(SpringMain.class, args);
+    }
+
     @Bean
     public VaadinServletContextInitializer vaadinServletContextInitializer(ApplicationContext applicationContext) {
         return new VaadinServletContextInitializer(applicationContext);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(SpringMain.class, args);
     }
 
     // This is the key for WildFly WAR deployment

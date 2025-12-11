@@ -49,10 +49,6 @@ public class SearchView extends VerticalLayout {
     public SearchView(@Autowired OrderService orderService, @Autowired UserService userService, @Autowired ProductService productService, @Autowired EmailService emailService) {
         this.emailService = emailService;
 
-//        setSizeFull();
-//        setPadding(false);
-//        setSpacing(false);
-
 
         //wrapper.setSizeFull();
         wrapper.setWidthFull();
@@ -134,11 +130,6 @@ public class SearchView extends VerticalLayout {
         wrapper.add(row2, row1, row3);
 
 
-        //resultsContainer.setWidthFull();
-//        resultsContainer.setHeightFull();
-//        wrapper.expand(resultsContainer);
-        //resultsContainer.setPadding(false);
-        //resultsContainer.setSpacing(false);
         resultsContainer.setWidthFull();
         wrapper.add(resultsContainer);
 

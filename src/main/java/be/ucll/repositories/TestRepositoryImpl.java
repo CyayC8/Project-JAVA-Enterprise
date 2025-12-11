@@ -1,21 +1,20 @@
 package be.ucll.repositories;
 
-import java.util.Collection;
-
-import org.springframework.stereotype.Repository;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
 
 @Repository
 public class TestRepositoryImpl implements TestRepository {
 
-	@PersistenceContext
-	private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-	@Override
-	public Collection<TestEntity> findAll() {
+    @Override
+    public Collection<TestEntity> findAll() {
 
         return entityManager.createQuery("from TestEntity").getResultList();
-	}
+    }
 }

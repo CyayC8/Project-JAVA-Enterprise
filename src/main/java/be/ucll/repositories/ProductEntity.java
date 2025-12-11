@@ -8,6 +8,15 @@ import java.util.List;
 @Entity
 public class ProductEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long productId;
+    private String name;
+    private String description;
+    private Long price;
+    @ManyToMany(mappedBy = "products")
+    private List<OrderEntity> orders = new ArrayList<>();
+
     public Long getProductId() {
         return productId;
     }
@@ -47,19 +56,6 @@ public class ProductEntity {
     public void setOrders(List<OrderEntity> orders) {
         this.orders = orders;
     }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long productId;
-
-    private String name;
-
-    private String description;
-
-    private Long price;
-
-    @ManyToMany(mappedBy = "products")
-    private List<OrderEntity> orders = new ArrayList<>();
 
 
 }

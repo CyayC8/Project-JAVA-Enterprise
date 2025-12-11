@@ -4,5 +4,5 @@ import java.util.Collection;
 
 public interface TestRepository {
 
-	Collection<TestEntity> findAll();
+    Collection<TestEntity> findAll();
 }

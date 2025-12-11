@@ -6,6 +6,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 @Component
@@ -54,9 +55,6 @@ public class MailListener {
             System.out.println("SMTP ERROR: " + ex.getMessage());
             ex.printStackTrace();
         }
-
-
-
 
     }
 }

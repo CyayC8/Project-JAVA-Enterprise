@@ -3,13 +3,11 @@ package be.ucll.repositories;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class OrderRepositoryImpl implements OrderRepository {
@@ -24,9 +22,7 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
     public Collection<OrderEntity> findAllByUserId(Long userId) {
-        return entityManager.createQuery("from OrderEntity where user.id = :userId")
-                .setParameter("userId", userId)
-                .getResultList();
+        return entityManager.createQuery("from OrderEntity where user.id = :userId").setParameter("userId", userId).getResultList();
     }
 
     @Override

@@ -1,10 +1,26 @@
 package be.ucll.jms;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 public class OrderEmailDTO implements Serializable {
-//Data Transfer Object
+    private Long orderId;
+    private String customerName;
+    private String customerEmail;
+    private Integer aantalProducten;
+    private Long totaalBedrag;
+    private Boolean afgeleverd;
+
+    // Constructor
+    public OrderEmailDTO(Long orderId, String customerName, String customerEmail, Integer aantalProducten, Long totaalBedrag, Boolean afgeleverd) {
+        this.orderId = orderId;
+        this.customerName = customerName;
+        this.customerEmail = customerEmail;
+        this.aantalProducten = aantalProducten;
+        this.totaalBedrag = totaalBedrag;
+        this.afgeleverd = afgeleverd;
+    }
+
+    //Data Transfer Object
     public Long getOrderId() {
         return orderId;
     }
@@ -50,23 +66,6 @@ public class OrderEmailDTO implements Serializable {
     }
 
     public void setAfgeleverd(Boolean afgeleverd) {
-        this.afgeleverd = afgeleverd;
-    }
-
-    private Long orderId;
-    private String customerName;
-    private String customerEmail;
-    private Integer aantalProducten;
-    private Long totaalBedrag;
-    private Boolean afgeleverd;
-
-    // Constructor
-    public OrderEmailDTO(Long orderId, String customerName, String customerEmail, Integer aantalProducten, Long totaalBedrag, Boolean afgeleverd) {
-        this.orderId = orderId;
-        this.customerName = customerName;
-        this.customerEmail = customerEmail;
-        this.aantalProducten = aantalProducten;
-        this.totaalBedrag = totaalBedrag;
         this.afgeleverd = afgeleverd;
     }
 

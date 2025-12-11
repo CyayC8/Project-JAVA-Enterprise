@@ -1,48 +1,45 @@
 package be.ucll.setup;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.IntStream;
-
 import be.ucll.repositories.OrderEntity;
 import be.ucll.repositories.ProductEntity;
+import be.ucll.repositories.TestEntity;
 import be.ucll.repositories.UserEntity;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import be.ucll.repositories.TestEntity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.IntStream;
 
 //TODO GOOGLE APPPASSWORD TOEVOEGEN
 @Component
 //hier worden records in de db gestoken
 public class InitialDataSetup {
 
-	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
 
-	@PersistenceContext
-	private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-	@PostConstruct
-	public void setup() {
+    @PostConstruct
+    public void setup() {
 
-		TransactionTemplate transactionTemplate = new TransactionTemplate(platformTransactionManager);
-		transactionTemplate.execute(e -> {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(platformTransactionManager);
+        transactionTemplate.execute(e -> {
 
-			IntStream.range(0, 6).forEach(value -> {
-				TestEntity testEntity = new TestEntity();
-				testEntity.setValue("This is value nr " + value + " created at " + new SimpleDateFormat().format(new Date()));
+            IntStream.range(0, 6).forEach(value -> {
+                TestEntity testEntity = new TestEntity();
+                testEntity.setValue("This is value nr " + value + " created at " + new SimpleDateFormat().format(new Date()));
                 testEntity.setNummer(5);
-				entityManager.persist(testEntity);
-			});
+                entityManager.persist(testEntity);
+            });
 
 
             //USERS
@@ -121,8 +118,6 @@ public class InitialDataSetup {
             entityManager.persist(product10);
 
 
-
-
             //ORDERS
             OrderEntity order = new OrderEntity();
             order.setUser(user);
@@ -158,7 +153,7 @@ public class InitialDataSetup {
             order4.setProducts(List.of(product4, product5, product6, product7, product8));
             entityManager.persist(order4);
 
-			return null;
-		});
-	}
+            return null;
+        });
+    }
 }

@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component //Spring detecteert and registered as a BEAN hierdoor kan Spring dit injecteren in  andere beans zoals EMailServiceImpl
+@Component
+//Spring detecteert and registered as a BEAN hierdoor kan Spring dit injecteren in  andere beans zoals EMailServiceImpl
 public class MailProducer {
 
     private final JmsTemplate jmsTemplate;

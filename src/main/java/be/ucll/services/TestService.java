@@ -1,10 +1,10 @@
 package be.ucll.services;
 
-import java.util.Collection;
-
 import be.ucll.repositories.TestEntity;
+
+import java.util.Collection;
 
 public interface TestService {
 
-	Collection<TestEntity> findAll();
+    Collection<TestEntity> findAll();
 }

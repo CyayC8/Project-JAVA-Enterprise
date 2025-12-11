@@ -2,7 +2,6 @@ package be.ucll.repositories;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,11 +16,7 @@ public class OrderEntity {
     private UserEntity user;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "order_products",
-            joinColumns = @JoinColumn(name = "orderId"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
+    @JoinTable(name = "order_products", joinColumns = @JoinColumn(name = "orderId"), inverseJoinColumns = @JoinColumn(name = "product_id"))
     private List<ProductEntity> products = new ArrayList<>();
 
     private Long totaalBedrag;
@@ -79,12 +74,6 @@ public class OrderEntity {
     public void setProducts(List<ProductEntity> products) {
         this.products = products;
     }
-
-
-
-
-
-
 
 
 }

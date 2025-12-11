@@ -4,11 +4,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 
 @Repository
-public class ProductRepositoryImpl implements ProductRepository{
+public class ProductRepositoryImpl implements ProductRepository {
 
     @PersistenceContext
     private EntityManager entityManager;

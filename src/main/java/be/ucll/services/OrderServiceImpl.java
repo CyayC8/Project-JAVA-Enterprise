@@ -2,8 +2,6 @@ package be.ucll.services;
 
 import be.ucll.repositories.OrderEntity;
 import be.ucll.repositories.OrderRepository;
-import com.vaadin.flow.component.treegrid.CollapseEvent;
-import jakarta.enterprise.context.ApplicationScoped;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +11,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-@Transactional//all dbbewerkingen in transaction = alle bewerkingen in 1 transacite indien rollback ALLE wijziginen terugdraaien = db consistent
+@Transactional
+//all dbbewerkingen in transaction = alle bewerkingen in 1 transacite indien rollback ALLE wijziginen terugdraaien = db consistent
 
 public class OrderServiceImpl implements OrderService {
 
