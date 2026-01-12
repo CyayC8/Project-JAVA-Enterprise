@@ -1,93 +1,133 @@
-# Java Enterprise AO
+#
+# Cedric's Java Enterprise (Spring Boot + Vaadin) Project
+
+This project is a Java enterprise-style web application built with Spring Boot and Vaadin (server-side UI). It demonstrates a full stack of enterprise concepts: authentication and authorization, a layered architecture (UI → service → repository), JPA/Hibernate persistence against an in-memory H2 database, messaging with JMS (ActiveMQ) for asynchronous email processing, and SMTP email delivery.
+
+The application UI is a small “Pokéshop” portal where authenticated users can search their orders using multiple criteria, view details, and have the current search results emailed to them via a background queue.
+
+Highlights
+- Spring Boot application with WAR support for traditional servlet containers.
+- Vaadin Flow UI (server-side, Java components), including a main layout, login, search, and detail views.
+- JPA/Hibernate with an in-memory H2 database, preconfigured and auto-created on startup.
+- Custom repository implementations using EntityManager (no Spring Data JPA repositories).
+- Service layer with transactional boundaries.
+- Spring Security with a custom UserDetailsService reading users from the database and a Vaadin-integrated login flow.
+- JMS with ActiveMQ: UI enqueues an “orders overview” message; a listener consumes it and sends an HTML email via SMTP.
 
 
+Project Structure (selected)
+- src/main/java/be/ucll/SpringMain.java — Spring Boot entry point. Also supports WAR deployment via SpringBootServletInitializer.
+- src/main/java/be/ucll/MyAppConfig.java — ComponentScan + configuration root.
+- src/main/java/be/ucll/spring/JpaConfig.java — H2 TCP server, DataSource, JPA properties, EntityManagerFactory, and transaction manager.
+- src/main/java/be/ucll/util/SecurityConfig.java — Spring Security config integrated with Vaadin’s security helpers and a custom UserDetailsService.
+- src/main/java/be/ucll/util/H2IsolationLevelInitializerBean.java — Utility to set H2 isolation level on startup.
+- src/main/java/be/ucll/setup/InitialDataSetup.java — (If present) seeds initial data; used to populate demo users/products/orders.
+- src/main/java/be/ucll/repositories — Entities and repository interfaces/impls using EntityManager.
+  - UserEntity, ProductEntity, OrderEntity (with ManyToOne/ManyToMany relations).
+  - UserRepositoryImpl, ProductRepositoryImpl, OrderRepositoryImpl, TestRepositoryImpl.
+- src/main/java/be/ucll/services — Service interfaces and @Service implementations (@Transactional where relevant).
+- src/main/java/be/ucll/ui — Vaadin views: MainLayout, LoginView, SearchView, DetailView, TestView.
+- src/main/java/be/ucll/jms — MailProducer (sender), MailListener (consumer), OrderEmailDTO, MailMessage classes.
+- src/main/resources/application.properties — App configuration (port, Vaadin dev flags, ActiveMQ, SMTP, logging, etc.).
+- src/main/resources/banner.txt — Custom Spring Boot banner.
 
-## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Domain Model
+- UserEntity: id, username, password, email. One-to-many with OrderEntity.
+- ProductEntity: id, name, description, price. Many-to-many with OrderEntity.
+- OrderEntity: id, user, products (EAGER for grid display), fields: totaalBedrag (total), aantalProducten, afgeleverd (delivered).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
 
-## Add your files
+Layered Architecture
+1) UI (Vaadin)
+   - MainLayout: header, footer, logout button, and a content area where views are rendered.
+   - LoginView: Vaadin login integrated with Spring Security via VaadinWebSecurity. Successful login redirects to /search.
+   - SearchView: central screen to filter orders by min/max total, product count, product name, email, and delivered flag. Displays results in a Grid and provides a button to send the current results by email.
+   - DetailView: navigates to /detail/{orderId} to show a single order (button from the grid).
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+2) Service Layer (be.ucll.services)
+   - OrderService: findAll, findAllByUserId, searchOrders, findById.
+   - ProductService: findAllProductNames (used to populate the product combo box in SearchView).
+   - EmailService: sendEmail enqueues DTOs for asynchronous processing.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/koen.serneels/java-enterprise-ao.git
-git branch -M main
-git push -uf origin main
-```
+3) Repository Layer (be.ucll.repositories)
+   - Uses EntityManager directly with HQL/JPQL queries in custom impl classes.
+   - OrderRepositoryImpl: findAll, findAllByUserId, dynamic search (builds query based on provided criteria), findById.
+   - ProductRepositoryImpl: fetches all product names.
+   - UserRepositoryImpl: findAll and findByUsername (used by security and UI code).
 
-## Integrate with your tools
+4) Persistence & JPA Configuration
+   - H2 in-memory DB, started as a TCP server (useful for external tools to connect while the app runs).
+   - Hibernate DDL auto=create (schema is recreated each startup). Suitable for demos/dev only.
+   - Entities are scanned under package be.ucll.
 
-- [ ] [Set up project integrations](https://gitlab.com/koen.serneels/java-enterprise-ao/-/settings/integrations)
+5) Security
+   - VaadinWebSecurity base config. Static resources allowed. Login view: LoginView.
+   - Custom UserDetailsService loads users from UserRepository and uses {noop} passwords (no hashing) for demo simplicity.
+   - Logout mapped to GET /logout for easy use from a Vaadin Button. Clears auth, session, and cookies.
 
-## Collaborate with your team
+6) Messaging & Email
+   - MailProducer uses Spring’s JmsTemplate to send List<OrderEmailDTO> to queue "mailQueue".
+   - MailListener listens on "mailQueue", builds an HTML table of orders, and sends it using JavaMailSender (SMTP). The recipient is taken from the first DTO’s customerEmail.
+   - OrderEmailDTO is the serializable data transfer object used on the queue.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
 
-## Test and Deploy
+How the main user flow works
+1. User navigates to the app and sees the login page. After successful login, user is redirected to /search.
+2. SearchView displays inputs and a grid. The product combobox is populated via ProductService.findAllProductNames().
+3. On Search, the UI converts inputs to types (BigDecimal, Integer, Boolean) and calls OrderService.searchOrders(userId, ...). The query is dynamically built server-side in OrderRepositoryImpl.
+4. The grid shows results. Clicking Details navigates to /detail/{orderId}.
+5. Clicking E‑Mail collects current grid items, maps them to OrderEmailDTO, and calls EmailService.sendEmail, which enqueues the DTOs. MailListener consumes the message and sends an HTML email through SMTP.
 
-Use the built-in continuous integration in GitLab.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Prerequisites
+- Java 17+ (matching your project's Maven configuration)
+- Maven 3.8+
+- Node.js 18+ (for Vaadin/Vite frontend build, already integrated with Vaadin tooling)
+- ActiveMQ broker running locally at tcp://localhost:61616 (default admin/admin). You can use Apache ActiveMQ Classic or Artemis configured for the same URL.
+- SMTP account for sending emails (e.g., Gmail). Ensure “App Passwords” and “Less secure app access”/“2FA app password” is configured appropriately for your account.
 
-***
 
-# Editing this README
+Configuration (src/main/resources/application.properties)
+- Server: server.port=${PORT:8080}
+- Logging: logging.level.root=error
+- Vaadin dev flags: vaadin.frontend.hotdeploy=true, vaadin.productionMode=false
+- ActiveMQ: spring.activemq.broker-url, user, password, and packages.trust-all=true (for DTO serialization)
+- Mail (SMTP): spring.mail.host, port, username, password, and TLS/auth properties
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Important: Do not commit real credentials in version control for production. Use environment variables, externalized config (e.g., application-prod.properties), or a secrets manager. For local dev, you can override with environment variables or a local, untracked properties file.
 
-## Suggestions for a good README
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Running the application (local dev)
+1) Start ActiveMQ locally
+   - Default broker URL: tcp://localhost:61616 (admin/admin). Adjust application.properties if different.
 
-## Name
-Choose a self-explaining name for your project.
+2) Ensure SMTP settings are valid
+   - For Gmail, set an app password and use smtp.gmail.com:587 with STARTTLS.
+   - Alternatively, use a local SMTP testing tool (e.g., MailHog, FakeSMTP) and point spring.mail.* to it.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+3) Build and run
+   - mvn clean spring-boot:run
+   - Or build a WAR/JAR: mvn clean package
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+4) Open the app
+   - http://localhost:8080 (login page). After login, you will be redirected to /search.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+5) Log in
+   - Initial users are loaded by the database seeding (see InitialDataSetup if present). Otherwise, create a user in the DB manually.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Troubleshooting
+- ActiveMQ not running: You won’t see the “message placed on queue” effect, and no email will be sent. Start the broker or disable JMS/email paths for testing.
+- SMTP errors: Check console logs from MailListener. Verify spring.mail.* settings and network/firewall constraints.
+- H2 is in-memory: Data resets on app restart (by design). Use a persistent DB and update JpaConfig for persistence across restarts.
+- Login issues: Ensure UserRepository has at least one user; passwords are {noop} (plain text) for demo. If using hashed passwords, adjust SecurityConfig accordingly.
+- Vaadin frontend: If you face dev-mode issues, clear node_modules and do a fresh build. Ensure Node.js version is compatible with Vaadin/Vite.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Building and deploying as WAR
+- The app extends SpringBootServletInitializer (SpringMain.configure) and can be packaged as a WAR (mvn package) for deployment to a servlet container (e.g., WildFly/Tomcat). VaadinServletContextInitializer bean is provided for WAR setups.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+License
+Internal/educational project. Add your preferred license here if needed.
